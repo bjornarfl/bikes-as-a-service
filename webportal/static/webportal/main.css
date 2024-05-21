@@ -1,0 +1,187 @@
+:root {
+    --custom_ocean_green: #00343E;
+    --custom_emerald_green: #14555a;
+    --custom_summer_green: #28b482;
+    --custom_success_green: #007B5E;
+
+    --custom_sea_green: #007272;
+    --custom_sea_green_30: #B3D5D5;
+
+    --custom_mint_green: #A5E1D2;
+    --custom_mint_green_50: #D2F0E9;
+    --custom_mint_green_25: #E9F8F4;
+    --custom_mint_green_12: #F4FBF9;
+
+    --custom_lavender: #F2F2F5;
+    --custom_sand_yellow: #FBF6EC;
+    --custom_pistachio: #F2F4EC;
+
+    --custom_accent_yellow: #FDBB31;
+    --custom_accent_yellow_30: #FEEBC1;
+    --custom_signal_orange: #FF5400;
+    --custom_fire_red: #DC2A2A;
+    --custom_fire_red_8: #FDEEEE;
+
+    --custom_black: #000000;
+    --custom_black_80: #333333;
+    --custom_black_55: #737373;
+    --custom_black_20: #CCCCCC;
+    --custom_black_8: #EBEBEB;
+    --custom_black_3: #F8F8F8;
+    --custom_white: #FFFFFF;
+}
+
+@font-face {
+    font-family: "DNB";
+    src: url("fonts/DNB-Regular.ttf") format("truetype");
+}
+
+body {
+    font-family: "DNB" !important;
+}
+
+.btn-custom {
+    background-color: var(--custom_sea_green) !important;
+    color: var(--custom_white) !important;
+}
+
+.btn-custom-green {
+    background-color: var(--custom_emerald_green) !important;
+    color: var(--custom_white) !important;
+}
+
+.btn-custom-green:hover {
+    background-color: var(--custom_white) !important;
+    color: var(--custom_emerald_green) !important;
+    border-color: var(--custom_emerald_green) !important;
+}
+
+.btn-custom-white {
+    border-color: var(--custom_emerald_green) !important;
+    color: var(--custom_emerald_green) !important;
+}
+
+.btn-custom-white:hover {
+    background-color: var(--custom_emerald_green) !important;
+    color: var(--custom_white) !important;
+}
+
+.btn-outline-custom {
+    border-color: var(--custom_white) !important;
+    color: var(--custom_white) !important;
+}
+
+.btn-outline-custom:hover {
+    background-color: var(--custom_white) !important;
+    color: var(--custom_emerald_green) !important;
+    border-color: var(--custom_emerald_green) !important;
+}
+
+.text-custom-white {
+    color: var(--custom_white) !important;
+}
+
+.text-custom-green {
+    color: var(--custom_emerald_green) !important;
+}
+
+.text-custom-error {
+    color: var(--custom_fire_red) !important;
+}
+
+.bg-custom-green {
+    background-color: var(--custom_emerald_green) !important;
+}
+
+.bg-custom-mint {
+    background-color: var(--custom_mint_green_50) !important;
+}
+
+.bg-custom-gray {
+    background-color: var(--custom_black_3) !important;
+}
+
+.bg-custom-success {
+    background-color: var(--custom_success_green) !important;
+}
+
+.bg-custom-info {
+    background-color: var(--custom_ocean_green) !important;
+}
+
+.bg-custom-warning {
+    background-color: var(--custom_accent_yellow) !important;
+}
+
+.bg-custom-error {
+    background-color: var(--custom_fire_red) !important;
+}
+
+.border-custom-green {
+    border-color: var(--custom_emerald_green) !important;
+}
+
+.text-custom-success {
+    color: var(--custom_success_green) !important;
+}
+
+.text-custom-info {
+    color: var(--custom_ocean_green) !important;
+}
+
+.text-custom-warning {
+    color: var(--custom_accent_yellow) !important;
+}
+
+.text-custom-error {
+    color: var(--custom_fire_red) !important;
+}
+
+.form-custom-input {
+    border-color: var(--custom_emerald_green) !important;
+}
+
+.form-custom-input:hover {
+    box-shadow: 0 0 4px rgba(20, 85, 90, 0.9) !important;
+}
+
+.form-custom-input:focus {
+    box-shadow: 0 0 4px rgba(20, 85, 90, 0.9) !important;
+}
+
+.card-input-element {
+    display: none;
+}
+
+.card-input:hover {
+    box-shadow: 0 0 4px rgba(20, 85, 90, 0.9) !important;
+    cursor: pointer;
+}
+
+.card-input-element:checked+.card-input {
+    box-shadow: 0 0 6px rgba(20, 85, 90, 0.9) !important;
+}
+
+.form-custom-switch:focus~.form-custom-switch-label::before {
+    border-color: var(--custom_emerald_green) !important;
+    box-shadow: 0 0 4px rgba(20, 85, 90, 0.9) !important;
+}
+
+.form-custom-switch:checked~.form-custom-switch-label::before {
+    border-color: var(--custom_emerald_green) !important;
+    background-color: var(--custom_emerald_green) !important;
+}
+
+.form-custom-switch:active~.form-custom-switch-label::before {
+    background-color: var(--custom_emerald_green) !important;
+    border-color: var(--custom_emerald_green) !important;
+}
+
+.form-custom-switch:focus:not(:checked)~.form-custom-switch-label::before {
+    border-color: var(--custom_emerald_green) !important;
+}
+
+.form-custom-switch-green:not(:disabled):active~.form-custom-switch-label::before {
+    background-color: var(--custom_emerald_green) !important;
+    border-color: var(--custom_emerald_green) !important;
+}

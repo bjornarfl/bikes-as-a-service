@@ -1,0 +1,36 @@
+{% extends "rest_framework/base.html" %}
+{% load static %}
+{% block navbar %}
+<link rel="stylesheet" href="{% static 'webportal/main.css' %}">
+
+<div class="navbar navbar-inverse" role="navigation" aria-label="navbar"
+    style="border: 0; background-color: #14555a; z-index: 1000;">
+    <div class="container">
+        <ul class="nav navbar-nav pull-left">
+            <a href="{% url 'webportal-home' %}" class="navbar-text"><img src='{% static "webportal/icons/icon.png" %}' alt="" height="50"></a>
+            <li class="navbar-text" style="color:white;"><a>Bikes as a Service API</a> </li>
+        </ul>
+        <ul class="nav navbar-nav pull-right">
+            {% if user.is_authenticated %}
+            <li class="navbar-text" style="color:white;"><a href="{% url 'user-detail' pk=user.pk %}" style="text-decoration: none; color:white;">{{user}}</a></li>
+            {% else %}
+            <li class="navbar-text" style="color:white;"><a href="{% url 'token_obtain_pair' %}" style="text-decoration: none; color:white;">Not authenticated</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}
+{% block breadcrumbs %}
+<div class="container" style="padding-top: 50px;">
+    <footer >
+        <div class="container">
+            <span class="text-muted text-custom-error"><b>Warning!</b> This is a fictional application created for the
+                purpose of training developers in finding security vulnerabilities. This application is <b>not
+                    secure</b> - do not store or upload any personal information, and do not reuse passwords from other
+                services.</span>
+        </div>
+    </footer>
+</div>
+{{block.super}}
+{% endblock %}

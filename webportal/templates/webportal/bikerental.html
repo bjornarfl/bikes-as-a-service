@@ -1,0 +1,75 @@
+{% extends 'webportal/base.html' %}
+{% block hero %}
+<div class="px-4 py-4 text-center bg-custom-green text-custom-white">
+
+    <h1 class="display-5 fw-bold">BikeRental Details</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-2">Transaction ID: #{{bikerental.pk}}</p>
+        <p class="lead mb-2">User: {{bikerental.user}}</p>
+        <p class="lead mb-2">Date: {{bikerental.start_time|date:'d M Y'}}</p>
+        <p class="lead mb-4">{{bikerental.start_time|date:'H:i'}} - {{bikerental.end_time|date:'H:i'}}</p>
+    </div>
+</div>
+
+{% endblock hero %}
+{% block body %}
+
+<div id="map" style="width:100%;height:600px;"></div>
+
+{% endblock body %}
+
+{% block scripts %}
+
+<script>
+    function initMap() {
+        const myLatLng = { lat: 59.91420888042575, lng: 10.752080994774769 };
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 14,
+            center: myLatLng,
+        });
+
+        var coords = []
+        var prev_infowindow = false;
+        function placeMarker(map, location, content) {
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+            var infowindow = new google.maps.InfoWindow({
+                content: content
+            });
+            google.maps.event.addListener(marker, 'click', function () {
+                if (prev_infowindow) {
+                    prev_infowindow.close();
+                }
+
+                prev_infowindow = infowindow;
+                infowindow.open(map, marker);
+            });
+            coords.push(location);
+        }
+
+        {% for location in locations %}
+        var latlng{{ location.pk }} = { lat: {{ location.latitude }}, lng: {{location.longitude}} }
+        contentString = '{{location.time}}'
+        placeMarker(map, latlng{{ location.pk }}, contentString)
+        {% endfor %}
+
+        var line = new google.maps.Polyline({
+            path: coords,
+            geodesic: true,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+        });
+
+        line.setMap(map);
+    }
+
+    window.initMap = initMap;
+</script>
+
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_EuJ89ye4cmTPDZvE_GpJD3zUP0gHpSI&callback=initMap"></script>
+
+{% endblock scripts %}
