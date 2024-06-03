@@ -2,6 +2,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import DjangoModelPermissions
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from django.utils import timezone
 
 from core.models import CustomUser, Bike, BikeLocation, BikeRental
@@ -36,7 +37,12 @@ class BikeViewSet(viewsets.ModelViewSet):
     serializer_class = BikeSerializer
     permission_classes = [DjangoModelPermissions]
 
-
+    @extend_schema(
+            parameters=[
+                OpenApiParameter(name='lat', description='latitude', required=True, type=float),
+                OpenApiParameter(name='lng', description='longitude', required=True, type=float),
+            ]
+    )
     @action(detail=False, methods=['get'])
     def find_nearby(self, request):
         '''

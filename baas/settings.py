@@ -161,8 +161,6 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=9999),
     "SIGNING_KEY": "",
-    "USER_ID_FIELD": "email",
-    "USED_ID_CLAIM": "user_email",
 }
 
 SPECTACULAR_SETTINGS = {

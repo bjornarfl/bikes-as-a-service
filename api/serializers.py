@@ -6,6 +6,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = '__all__'
+        read_only_fields = ['is_superuser', 'is_staff', 'user_permissions']
 
 class BikeLocationSerializer(serializers.ModelSerializer):
     latitude = serializers.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)], required=True)
