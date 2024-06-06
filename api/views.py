@@ -37,6 +37,53 @@ class BikeViewSet(viewsets.ModelViewSet):
     serializer_class = BikeSerializer
     permission_classes = [DjangoModelPermissions]
 
+
+    @extend_schema(
+            parameters=[
+                OpenApiParameter(name='lat', description='latitude', required=True, type=float),
+                OpenApiParameter(name='lng', description='longitude', required=True, type=float),
+                OpenApiParameter(name='radius', description='radius for area of search. 0.01 radius equals approximately 1 kilometer, and is the default if no radius is provided', required=False, type=float),
+            ]
+    )
+    @action(detail=False, methods=['get'])
+    def find_nearby(self, request):
+        '''
+        Lists all bikes within a user defined radius of the coordinates provided. 0.01 radius equals approximately 1 kilometer, and is the default if no radius is provided.
+        '''
+        self.serializer_class = BikeLocationSerializer
+        lat = request.GET.get('lat')
+        lng = request.GET.get('lng')
+        if request.GET.get('radius'):
+            radius = request.GET.get('radius')
+        else:
+            radius = 0.01
+        if lat and lng:
+            try:
+                bikes = Bike.objects.filter(status="A")
+                locations = []
+                latmin = float(lat) - float(radius)
+                latmax = float(lat) + float(radius)
+                lngmin = float(lng) - float(radius)
+                lngmax = float(lng) + float(radius)
+                #filter out all locations outside of the radius
+                for bike in bikes:
+                    #only look at the latest known location of the bike
+                    location = bike.bikelocation_set.first()
+                    if location is not None:
+                        if (latmin < location.latitude <latmax) and (lngmin < location.longitude < lngmax):
+                            locations.append(location.pk)
+
+                locations = BikeLocation.objects.filter(pk__in=locations)
+                if locations.exists():
+                    return Response(self.serializer_class(locations, many=True).data, status=status.HTTP_200_OK)
+                else:
+                    return Response({"error": "Could not find any nearby bikes"}, status=status.HTTP_404_NOT_FOUND)
+            except ValueError:
+                return Response({"error": "Unexpected format for lat, lng, and radius query parameters"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "lat and lng query parameters not provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+
     @extend_schema(
             parameters=[
                 OpenApiParameter(name='lat', description='latitude', required=True, type=float),
@@ -44,31 +91,9 @@ class BikeViewSet(viewsets.ModelViewSet):
             ]
     )
     @action(detail=False, methods=['get'])
-    def find_nearby(self, request):
-        '''
-        Lists all bikes within a 1 kilometer radius of the coordinates provided.
-        '''
-        self.serializer_class = BikeLocationSerializer
-        lat = request.GET.get('lat')
-        lng = request.GET.get('lng')
-        if lat and lng:
-            try:
-                locations = get_current_bikelocations()
-                locations = locations.filter(latitude__range = (float(lat)-0.01, float(lat)+0.01), longitude__range=(float(lng)-0.01, float(lng)+0.01))
-                if locations.exists():
-                    return Response(self.serializer_class(locations, many=True).data, status=status.HTTP_200_OK)
-                else:
-                    return Response({"error": "Could not find any nearby bikes"}, status=status.HTTP_404_NOT_FOUND)
-            except ValueError:
-                return Response({"error": "Unexpected format for lat and lng query parameters"}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"error": "lat and lng query parameters not provided"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-    @action(detail=False, methods=['get'])
     def find_nearest(self, request):
         '''
-        Provides the bike with the nearest location for the coordinates provided.
+        Returns the bike with the nearest location for the coordinates provided.
         '''
         self.serializer_class = BikeLocationSerializer
         lat = request.GET.get('lat')
@@ -147,10 +172,7 @@ class BikeViewSet(viewsets.ModelViewSet):
         self.serializer_class = StopRentalSerializer
         rental = BikeRental.objects.filter(bike=self.get_object(), end_time__isnull=True).first()
         if rental:
-            rental.end_time = timezone.now()
-            rental.save()
-            rental.bike.status = 'A'
-            rental.bike.save()
+            rental.end_rental()
             return Response(self.serializer_class(rental).data, status=status.HTTP_200_OK)
         else:
             return Response({"error": "No active bikerental with this bike was found"}, status=status.HTTP_404_NOT_FOUND)

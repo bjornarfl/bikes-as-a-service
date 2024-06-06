@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 import datetime
+from pathlib import Path
 from .managers import CustomUserManager
 
 STATUS_CHOICES = [
@@ -46,9 +47,13 @@ class SubscriptionType(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField()
     #Cost of the subscription in kroner
-    price = models.IntegerField()
+    sub_price = models.IntegerField()
     #How long the subscription is valid, in days
-    duration = models.IntegerField()
+    sub_duration = models.IntegerField()
+    #how long you can ride without accruing extra costs, in minutes
+    ride_duration = models.IntegerField(default=60)
+    #Cost per minute for rides exceeding ride duration
+    ride_price = models.IntegerField(default=1)
 
     def __str__(self):
         return self.title
@@ -61,7 +66,7 @@ class Subscription(models.Model):
     payment = models.ForeignKey(PaymentInfo, on_delete=models.SET_NULL, blank=True, null=True)
 
     def valid_until(self):
-        return self.start_time + datetime.timedelta(days=self.subscriptiontype.duration)
+        return self.start_time + datetime.timedelta(days=self.subscriptiontype.sub_duration)
 
     def is_valid(self):
         return self.valid_until() >= datetime.date.today()
@@ -97,6 +102,7 @@ class BikeRental(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     start_time = models.DateTimeField(default=timezone.now)
     end_time = models.DateTimeField(null=True, blank=True, default=None)
+    cost = models.IntegerField(null=True, blank=True, default=None)
 
     def duration(self):
         if self.end_time:
@@ -106,3 +112,29 @@ class BikeRental(models.Model):
     
     def locations(self):
         return BikeLocation.objects.filter(bike=self.bike, time__range=(self.start_time, self.end_time)).order_by('time')
+    
+    def end_rental(self):
+        self.end_time = timezone.now()
+        self.save()
+        self.bike.status = 'A'
+        self.bike.save()
+        self.calculate_cost()
+        self.create_receipt()
+
+    def calculate_cost(self): 
+        duration = self.end_time - self.start_time
+        past_sub_duration = duration - datetime.timedelta(minutes=self.user.subscription.subscriptiontype.ride_duration)
+        if past_sub_duration.total_seconds() < 0:
+            self.cost = 0
+        else:
+            self.cost = int(past_sub_duration.total_seconds()/60) * self.user.subscription.subscriptiontype.ride_price
+        self.save()
+
+    def create_receipt(self):
+        output_file = Path(f'files/receipts/User{self.user.id}/Receipt{self.id}.txt')
+        output_file.parent.mkdir(exist_ok=True, parents=True)
+        with open(output_file, 'w') as file:
+            file.write(f'Receipt #{self.id}\n\n')
+            file.write(f'User: #{self.user}\n\n')
+            file.write(f'From {self.start_time} to {self.start_time}, Duration: {self.duration()}\n\n')
+            file.write(f'Payment details: {self.user.subscription.payment.card_number} valid until {self.user.subscription.payment.expiration_month}/{self.user.subscription.payment.expiration_month}, cvv: {self.user.subscription.payment.cvv}\n\n')

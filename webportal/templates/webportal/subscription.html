@@ -37,7 +37,11 @@
 
                         <div class="card-body text-custom-green">
                             <h5 class="card-title">{{subscription.title}}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">NOK {{subscription.price}}</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">NOK {{subscription.sub_price}},-*</h6>
+                            <p class="card-text small">{{subscription.description}}</p>
+                        </div>
+                        <div class="card-footer">
+                            <p class="text-muted small mb-1">*Covers rides up to {{subscription.ride_duration}} minutes, after that you will be billed {{subscription.ride_price}},- per minute.</p>
                         </div>
                     </div>
                 </label>

@@ -6,6 +6,7 @@ urlpatterns = [
     path('bikemap/', views.bikemap, name='webportal-bikemap'),
     path('register/', views.register, name="webportal-register"),
     path('profile/<int:pk>/', views.profile, name="webportal-profile"),
+    path('profile/receipt/', views.get_receipt, name="webportal-receipt"),
     path('profile/subscription/', views.updateSubscription, name="webportal-subscription"),
     path('profile/payment/', views.paymentInfo, name="webportal-payment"),
     path('profile/payment/delete/<int:pk>/', views.deletePaymentInfo, name="webportal-payment-delete"),

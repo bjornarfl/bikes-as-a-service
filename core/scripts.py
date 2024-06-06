@@ -3,15 +3,17 @@ from django.core.management import call_command
 from core.models import Bike, BikeLocation, BikeRental, Subscription, SubscriptionType, CustomUser, PaymentInfo
 from datetime import datetime, timedelta
 import random
+import os
+import glob
 
 def loadbasedata():
     #check if basedata is already present, otherwise add
      
     #SubscriptionTypes
     if not SubscriptionType.objects.exists():
-        SubscriptionType.objects.create(title="365-day pass", description="Ride as much as you want for an entire year (365 days). Ideal for the frequent user who likes to keep it uncomplicated.", price=589, duration=365)
-        SubscriptionType.objects.create(title="30-day subscription", description="Ride as often as you want for 30 days.", price=259, duration=30)
-        SubscriptionType.objects.create(title="24-hour pass", description="Tourist in oslo? This pass provides 24 hours of access to our entire network of bikes!", price=39, duration=1)
+        SubscriptionType.objects.create(title="365-day pass", description="Ride as much as you want for an entire year (365 days). Ideal for the frequent user who likes to keep it uncomplicated.", sub_price=589, sub_duration=365)
+        SubscriptionType.objects.create(title="30-day subscription", description="Ride as often as you want for 30 days.", sub_price=259, sub_duration=30)
+        SubscriptionType.objects.create(title="24-hour pass", description="Tourist in oslo? This pass provides 24 hours of access to our entire network of bikes!", sub_price=39, sub_duration=1)
     
     #Bikes
     if not Bike.objects.exists():
@@ -100,7 +102,7 @@ def populate_user(user):
     card = PaymentInfo.objects.create(user=user, title="visa", card_number=f'402960{random.randint(1111111111, 9999999999)}', cvv=random.randint(111,999), expiration_year=expiration_year, expiration_month=random.randint(1,12))
 
     #Create at least a 30-day subscription, or a random one if that doesnt exist
-    subtype = SubscriptionType.objects.filter(duration__gte=30)
+    subtype = SubscriptionType.objects.filter(sub_duration__gte=30)
     if not subtype.exists():
         subtype = SubscriptionType.objects.all()
     Subscription.objects.get_or_create(user=user, defaults={'subscriptiontype': random.choice(subtype), 'start_time': start_date.date(), 'payment': card})
@@ -124,9 +126,15 @@ def populate_user(user):
                 bike = Bike.objects.create()
             BikeLocation.objects.create(bike=bike, latitude=round(random.uniform(latmin, latmax),5), longitude=round(random.uniform(longmin, longmax),5), time=start_time)
             BikeLocation.objects.create(bike=bike, latitude=round(random.uniform(latmin, latmax),5), longitude=round(random.uniform(longmin, longmax),5), time=end_time)
-            BikeRental.objects.create(bike=bike, user=user, start_time=start_time, end_time=end_time)
+            rental = BikeRental.objects.create(bike=bike, user=user, start_time=start_time, end_time=end_time)
+            rental.save()
+            rental.calculate_cost()
+            rental.create_receipt()
         start_date = start_date + timedelta(days=1)
 
 def reset():
     call_command("flush", verbosity=0, interactive=False)
+    files = glob.glob('/files/receipts/*')
+    for f in files:
+        os.remove(f)
     loadbasedata()

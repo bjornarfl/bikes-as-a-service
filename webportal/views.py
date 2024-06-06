@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import FileResponse
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.utils import dateparse
 from django.db.models import Q
 import datetime
-from core.models import PaymentInfo, BikeRental, SubscriptionType, CustomUser, Bike, BikeLocation
+from pathlib import Path
+from core.models import PaymentInfo, BikeRental, SubscriptionType, CustomUser, Bike
 from core.forms import CustomUserCreationForm, CustomUserChangeForm, SubscriptionUpdateForm, PaymentInfoCreationForm
 
 #frontpage
@@ -136,3 +138,15 @@ def deletePaymentInfo(request, pk):
     else:
         messages.error(request, "Something went wrong, please try again")
     return redirect('webportal-payment')
+
+@login_required
+def get_receipt(request):
+    file = request.GET.get('file', '')
+    path = f'files/receipts/user{request.user.id}/{file}'
+    path = path.replace('../', '')
+    path = Path(path)
+    if path.is_file():
+        return FileResponse(open(path, 'rb'), as_attachment=True)
+    else:
+        messages.error(request, f'Could not find requested receipt')
+        return redirect('webportal-profile', pk=request.user.pk)

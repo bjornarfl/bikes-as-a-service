@@ -46,7 +46,7 @@
   - **Security Misconfiguration:** The application is configured with DEBUG = TRUE, which means it will share way too much information if something goes wrong. Can you find a way to force the application into an error-state to reveal this information?
   - **Broken Access Control:** Can you find a way to use the credit card of another user to pay for your subscription without using admin privileges?
   - **Cross Site Scripting:** The profile page is looking a bit bland at the moment. Can you find a way to give it some more style?
-  - **Broken Cryptography:** Find out what encryption algorithm is used to safeguard passwords in the database. Can you crack any of the passwords?
+  - **Path Traversal:** Receipts are stored in the /files/receipts/User{id} folder. Can you find a way to download the database instead of a receipt?
 
  ### API Challenges:
  - **Broken Function Level Authorization:** What actions you should be allowed to do often depends on business context. Can you find an instance where the endpoint logically should be limited to fewer users than the current implementation allows?
@@ -55,4 +55,7 @@
  - **Unrestricted Resource Consumption:** Seems like the Baas-developers have decided to not implement request-throttling on any of their routes. Which routes do you think would be most vulnerable to spam-attacks?
 
  ### Code Review:
-Some vulnerabilities are not so easy to demonstrate in a live example, but they are still obvious when looking directly in the source code. How many more vulnerabilities can you find in this repository?
+ - **Vulnerable and Outdated Components:** Have a look at the third-party libraries included in requirements.txt. Can you find any open/known vulnerabilities for the chosen library versions?
+ - **Identification and Authentication Failures:** Django projects define their password policy in the settings file. Why isnt this project preventing users from creating weak or well-known passwords?
+ - **Insecure Design:** Have a look at the different models used to store objects in the database. Is there anything here you think is stored incorrectly or improperly?
+ - **Broken Cryptography:** Find out what encryption algorithm is used to safeguard the user passwords. Can you find a way to extract a password hash and decrypt it?
